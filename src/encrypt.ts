@@ -1,6 +1,9 @@
+#!/usr/bin/env node
+
 import { readFile, writeFile } from "node:fs/promises";
 import { getRandomValues, subtle } from "node:crypto";
 import { createInterface } from "node:readline";
+import { join } from "node:path";
 import { minify } from "html-minifier-terser";
 import {
   signMessage,
@@ -155,7 +158,10 @@ try {
     await hashPassword(pw, salt)
   );
 
-  const cryptJS = await readFile("./crypt.js", "utf-8");
+  const cryptJS = await readFile(
+    join(import.meta.dirname, "./crypt.js"),
+    "utf-8"
+  );
 
   if (removeHead) {
     file = file.replace(/<head([^]*?)>[^]*?<\/head>/, "<head></head>");
@@ -166,7 +172,7 @@ try {
     `<body$1><script type="module">
     const esm = ({raw}, ...vals) => URL.createObjectURL(new Blob([String.raw({raw}, ...vals)], {type: 'application/javascript'}));
 
-    const { handleDecryptionOfPage } = await import(esm\`${cryptJS}\`);
+    const { handleDecryptionOfPage } = await import("esmPLACEHOLDER");
 
     const $ = document.querySelector.bind(document);
     const encryptedMsg = "${encryptedMsg}";
@@ -198,8 +204,13 @@ try {
     file = await minify(file, {
       collapseWhitespace: true,
       removeComments: true,
+      minifyJS: true,
+      minifyCSS: true,
     });
+    file = file.replace(/[\r\n]\s+/g, "");
   }
+
+  file = file.replace('"esmPLACEHOLDER"', `esm\`${cryptJS}\``);
 
   await writeFile(path, file);
 } catch (err) {

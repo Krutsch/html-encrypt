@@ -180,8 +180,18 @@ async function decryptAndReplaceHtml(
     return false;
   }
 
-  document.write(result.decoded!);
-  document.close();
+  // @ts-ignore
+  import("https://unpkg.com/hydro-js@1.5.19/dist/library.js")
+    .then(({ render, html, setReuseElements }) => {
+      setReuseElements(false);
+      const element = html({ raw: result.decoded });
+      const newHTML = element.querySelector("html") || element;
+      render(newHTML, document.documentElement);
+    })
+    .catch(() => {
+      document.write(result.decoded!);
+      document.close();
+    });
 
   return true;
 }
