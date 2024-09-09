@@ -4,6 +4,7 @@ import { getRandomValues, subtle } from "node:crypto";
 import { createInterface } from "node:readline";
 import { join } from "node:path";
 import { minify } from "html-minifier-terser";
+import * as esbuild from "esbuild";
 import { signMessage, hashPassword, HexEncoder, IV_BITS, ENCRYPTION_ALGO, } from "./crypt.js";
 const removeHead = process.argv.includes("--removeHead");
 const noMinify = process.argv.includes("--no-minify") || false;
@@ -120,7 +121,7 @@ try {
     </main>`;
     let file = await readFile(path, "utf-8");
     const encryptedMsg = await encodeWithHashedPassword(file, await hashPassword(pw, salt));
-    const cryptJS = await readFile(join(import.meta.dirname, "./crypt.js"), "utf-8");
+    let cryptJS = await readFile(join(import.meta.dirname, "./crypt.js"), "utf-8");
     if (removeHead) {
         file = file.replace(/<head([^]*?)>[^]*?<\/head>/, "<head></head>");
     }
@@ -161,6 +162,7 @@ try {
             minifyCSS: true,
         });
         file = file.replace(/[\r\n]\s+/g, "");
+        cryptJS = (await esbuild.transform(cryptJS, { minify: true })).code;
     }
     file = file.replace('"esmPLACEHOLDER"', `esm\`${cryptJS}\``);
     await writeFile(path, file);

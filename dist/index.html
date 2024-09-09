@@ -1,132 +1,122 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hidden Page</title><style>body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Open Sans","Helvetica Neue",sans-serif;background-color:#c0ffee}h1{text-align:center}img{display:block;margin:auto;max-height:50vh;max-width:100%}</style></head><body><script type="module">const esm = ({raw}, ...vals) => URL.createObjectURL(new Blob([String.raw({raw}, ...vals)], {type: 'application/javascript'}));const { handleDecryptionOfPage } = await import(esm`const { subtle } = crypto;
-const HEX_BITS = 4;
-export const IV_BITS = 16 * 8;
-export const ENCRYPTION_ALGO = "AES-CBC";
-export const HexEncoder = {
-    parse: function (hexString) {
-        if (hexString.length % 2 !== 0)
-            throw "Invalid hexString";
-        const arrayBuffer = new Uint8Array(hexString.length / 2);
-        for (let i = 0; i < hexString.length; i += 2) {
-            const byteValue = parseInt(hexString.substring(i, i + 2), 16);
-            if (isNaN(byteValue)) {
-                throw "Invalid hexString";
-            }
-            arrayBuffer[i / 2] = byteValue;
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Hidden Page</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+          sans-serif;
+        background-color: #c0ffee;
+      }
+      h1 {
+        text-align: center;
+      }
+      img {
+        display: block;
+        margin: auto;
+        max-height: 50vh;
+        max-width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      const esm = ({ raw }, ...vals) =>
+        URL.createObjectURL(
+          new Blob([String.raw({ raw }, ...vals)], {
+            type: "application/javascript",
+          })
+        );
+      const { handleDecryptionOfPage } = await import(
+        esm`const{subtle:u}=crypto,h=4;export const IV_BITS=16*8,ENCRYPTION_ALGO="AES-CBC",HexEncoder={parse:function(e){if(e.length%2!==0)throw"Invalid hexString";const n=new Uint8Array(e.length/2);for(let t=0;t<e.length;t+=2){const r=parseInt(e.substring(t,t+2),16);if(isNaN(r))throw"Invalid hexString";n[t/2]=r}return n},stringify:function(e){const n=[];for(let t=0;t<e.length;++t){let r=e[t].toString(16);r.length<2&&(r="0"+r),n.push(r)}return n.join("")}};async function w(e,n){const t=IV_BITS/h,r=HexEncoder.parse(e.substring(0,t)),c=e.substring(t),s=await u.importKey("raw",HexEncoder.parse(n),ENCRYPTION_ALGO,!1,["decrypt"]),i=await u.decrypt({name:ENCRYPTION_ALGO,iv:r},s,HexEncoder.parse(c));return new TextDecoder().decode(new Uint8Array(i))}function l(e,n){return d(e,n,1e3,"SHA-1")}function p(e,n){return d(e,n,14e3,"SHA-256")}function f(e,n){return d(e,n,585e3,"SHA-256")}async function d(e,n,t,r){const c=await u.importKey("raw",new TextEncoder().encode(e),"PBKDF2",!1,["deriveBits"]),s=await u.deriveBits({name:"PBKDF2",hash:r,iterations:t,salt:new TextEncoder().encode(n)},c,256);return HexEncoder.stringify(new Uint8Array(s))}async function y(e,n,t,r=0,c=""){const s=e.substring(0,64),i=e.substring(64);if(await signMessage(n,i)!==s){if(c=c||n,r===0){const o=await f(c,t);return y(e,o,t,r+1,c)}if(r===1){let o=await p(c,t);return o=await f(o,t),y(e,o,t,r+1,c)}return{success:!1,message:"Signature mismatch"}}return{success:!0,decoded:await w(i,n)}}async function H(e,n,t){return await S(e,n,t)?{isSuccessful:!0,hashedPassword:e}:{isSuccessful:!1,hashedPassword:e}}async function S(e,n,t){const r=await y(n,e,t);return r.success?(import("https://unpkg.com/hydro-js@1.5.19/dist/library.js").then(({render:c,html:s,setReuseElements:i})=>{i(!1);const a=s({raw:r.decoded}),o=a.querySelector("html")||a;c(o,document.documentElement)}).catch(()=>{document.write(r.decoded),document.close()}),!0):!1}export async function hashPassword(e,n){let t=await l(e,n);return t=await p(t,n),f(t,n)}export async function signMessage(e,n){const t=await u.importKey("raw",HexEncoder.parse(e),{name:"HMAC",hash:"SHA-256"},!1,["sign"]),r=await u.sign("HMAC",t,new TextEncoder().encode(n));return HexEncoder.stringify(new Uint8Array(r))}export async function handleDecryptionOfPage(e,n,t){const r=await hashPassword(e,t);return H(r,n,t)}`
+      );
+      const $ = document.querySelector.bind(document);
+      const encryptedMsg =
+        "b280ac3b684c4c4178a87fbbca7866bfdb27ea20f549d38f43c92f634f820c9a4928616d73fd11b75c7030ff3e8f6f61d66ee7935b1c7905a899fcc8985a03df0aaa07472824f6cfa26753ca0a309b5cf1e0bed0065d1d6b9722cf5c2570cdb7a3304a7c584fcf6760733d6ab1bc43d5535f5bb147f0d4e56513b4fe571896d27c2679207f526b6b81773e198311c61f6dc8628addcc80aef5e17f42d638b55d2399b89227ecd6a347286d25583e99c80f1156479d432d0547c642d0334ec737a3e0d9ea2777b53e4c4966686f98eb043869899152683e1c590f3e65f4e4d6479594621def7cc767637d302c6940d7dfff7db5cdb247e23464210d7b7072d735a2d0c5bf0a5c652942c0469e6986c26d533241acf2f547d41b7a38c65f8410d27e95464aa3b59d93f69b119255048e9141f4ce2831b79c29d5bf1e6ddc6e87077c76ddfc1562262935f4c4d4b60551738541555e1df064f60809d97172416b47438099b4b26be49b7285cbd6ec328d8b9502ae874738d0a65d0280c0b96606899d31102be19ac60916f31e608353b0ff65328cd860f5618a20b07cfdd8a4ec362b70a233bdf871b374719181e03d7f929d6ddd5509931d63d1743972579cd07b87dcd5300a71fa846e7f1da735efc41adc1ddd8fdd9632eb84c7b2373aeeacc25dec8fc2f7cd004dc0cf5b687f63b41425714cff7cbe04f0332e5f337dbf0c0ed4adb25f8cae42350db4458440f3e1d396f03b3627c5bcbebec5f116b8dfd1c50ea56d29a25159d7f64627f5567530508f5b4660856e0317ac309e162f300aaf96f146950a97f9514242c772b86c53d574becd04e75250769739ab0dbdfc6c777703bd9cd7bef5e84e60a34fc399dfc7830863d5b61481f4f583f641ea9cea0aafa1c9a6eae776156c53f8904bf67f386e39619c2fb48403c4f50e9c210e7c1def81a6843c101b2f4f81a00b82f97a015c08211dca5a9dcc5093cd3f2fe00dfdea6eddbbba1f7b4010cacab9f1b4f7f4f1775f577e5beafc4071292e3ed12e3d10e002099e833b2e6bf62434b24a837dae13fce4eaeccebf44ef52bb63b5a8a3aadef1af6698c7b720dda16ddf1b7d8ef79d2595a95556b5b73228f0a108532bc81215102400ee8db701709993decc2c13602e1836cb9388150251d260b082a7101437f7b92f1000fdb71e87f4324b126542d45e62c2f8cf4c19503c187e30e66fcc9d5dbed47294af372e24dfb41e85ac7a8ce727476198add3d3faf7f6efa8d60ef749c72d0f5e617ec8305d71263e7c925853ba842d10c029b1356236a2482bf77dc1382f622596e958b88050f12a59da367a3a3f1e341624c6389c39b87588bb3186b37c3005850afa3e7996d9076e08f2509eeb5807823c37e7e0829cb723579d57380eb1305fa4f68d60c72a8bcd37833a9b6a366de723b9187e12a079";
+      const salt = "7449b49ad78ee2b631f4489839f73af2";
+      const main = $("main");
+      $("form").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const password = $("input").value;
+        const { isSuccessful } = await handleDecryptionOfPage(
+          password,
+          encryptedMsg,
+          salt
+        );
+        if (!isSuccessful) {
+          main?.classList.remove("shake");
+          main?.offsetWidth;
+          main?.classList.add("shake");
         }
-        return arrayBuffer;
-    },
-    stringify: function (bytes) {
-        const hexBytes = [];
-        for (let i = 0; i < bytes.length; ++i) {
-            let byteString = bytes[i].toString(16);
-            if (byteString.length < 2) {
-                byteString = "0" + byteString;
-            }
-            hexBytes.push(byteString);
+      });
+    </script>
+    <script src="https://cdn.twind.style" crossorigin></script>
+    <style>
+      html {
+        height: 100%;
+      }
+      body {
+        display: block;
+        height: 100%;
+        width: 100%;
+        background-color: rgb(17 24 39);
+        color: rgb(241 245 249);
+        font-size: 1rem;
+        line-height: 1.5rem;
+        overflow-x: hidden;
+      }
+      @keyframes shake {
+        0% {
+          transform: translateX(0);
         }
-        return hexBytes.join("");
-    },
-};
-async function decrypt(encryptedMsg, hashedPassword) {
-    const ivLength = IV_BITS / HEX_BITS;
-    const iv = HexEncoder.parse(encryptedMsg.substring(0, ivLength));
-    const encrypted = encryptedMsg.substring(ivLength);
-    const key = await subtle.importKey("raw", HexEncoder.parse(hashedPassword), ENCRYPTION_ALGO, false, ["decrypt"]);
-    const outBuffer = await subtle.decrypt({
-        name: ENCRYPTION_ALGO,
-        iv: iv,
-    }, key, HexEncoder.parse(encrypted));
-    return new TextDecoder().decode(new Uint8Array(outBuffer));
-}
-function hashLegacyRound(password, salt) {
-    return pbkdf2(password, salt, 1000, "SHA-1");
-}
-function hashSecondRound(hashedPassword, salt) {
-    return pbkdf2(hashedPassword, salt, 14000, "SHA-256");
-}
-function hashThirdRound(hashedPassword, salt) {
-    return pbkdf2(hashedPassword, salt, 585000, "SHA-256");
-}
-async function pbkdf2(password, salt, iterations, hashAlgorithm) {
-    const key = await subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
-    const keyBytes = await subtle.deriveBits({
-        name: "PBKDF2",
-        hash: hashAlgorithm,
-        iterations,
-        salt: new TextEncoder().encode(salt),
-    }, key, 256);
-    return HexEncoder.stringify(new Uint8Array(keyBytes));
-}
-async function decode(signedMsg, hashedPassword, salt, backwardCompatibleAttempt = 0, originalPassword = "") {
-    const encryptedHMAC = signedMsg.substring(0, 64);
-    const encryptedMsg = signedMsg.substring(64);
-    const decryptedHMAC = await signMessage(hashedPassword, encryptedMsg);
-    if (decryptedHMAC !== encryptedHMAC) {
-        originalPassword = originalPassword || hashedPassword;
-        if (backwardCompatibleAttempt === 0) {
-            const updatedHashedPassword = await hashThirdRound(originalPassword, salt);
-            return decode(signedMsg, updatedHashedPassword, salt, backwardCompatibleAttempt + 1, originalPassword);
+        6.5% {
+          transform: translateX(-6px) rotateY(-9deg);
         }
-        if (backwardCompatibleAttempt === 1) {
-            let updatedHashedPassword = await hashSecondRound(originalPassword, salt);
-            updatedHashedPassword = await hashThirdRound(updatedHashedPassword, salt);
-            return decode(signedMsg, updatedHashedPassword, salt, backwardCompatibleAttempt + 1, originalPassword);
+        18.5% {
+          transform: translateX(5px) rotateY(7deg);
         }
-        return { success: false, message: "Signature mismatch" };
-    }
-    return {
-        success: true,
-        decoded: await decrypt(encryptedMsg, hashedPassword),
-    };
-}
-async function handleDecryptionOfPageFromHash(hashedPassword, encryptedMsg, salt) {
-    const isDecryptionSuccessful = await decryptAndReplaceHtml(hashedPassword, encryptedMsg, salt);
-    if (!isDecryptionSuccessful) {
-        return {
-            isSuccessful: false,
-            hashedPassword,
-        };
-    }
-    return {
-        isSuccessful: true,
-        hashedPassword,
-    };
-}
-async function decryptAndReplaceHtml(hashedPassword, encryptedMsg, salt) {
-    const result = await decode(encryptedMsg, hashedPassword, salt);
-    if (!result.success) {
-        return false;
-    }
-    // @ts-ignore
-    import("https://unpkg.com/hydro-js@1.5.19/dist/library.js")
-        .then(({ render, html, setReuseElements }) => {
-        setReuseElements(false);
-        const element = html({ raw: result.decoded });
-        const newHTML = element.querySelector("html") || element;
-        render(newHTML, document.documentElement);
-    })
-        .catch(() => {
-        document.write(result.decoded);
-        document.close();
-    });
-    return true;
-}
-export async function hashPassword(password, salt) {
-    let hashedPassword = await hashLegacyRound(password, salt);
-    hashedPassword = await hashSecondRound(hashedPassword, salt);
-    return hashThirdRound(hashedPassword, salt);
-}
-export async function signMessage(hashedPassword, message) {
-    const key = await subtle.importKey("raw", HexEncoder.parse(hashedPassword), {
-        name: "HMAC",
-        hash: "SHA-256",
-    }, false, ["sign"]);
-    const signature = await subtle.sign("HMAC", key, new TextEncoder().encode(message));
-    return HexEncoder.stringify(new Uint8Array(signature));
-}
-export async function handleDecryptionOfPage(password, encryptedMsg, salt) {
-    const hashedPassword = await hashPassword(password, salt);
-    return handleDecryptionOfPageFromHash(hashedPassword, encryptedMsg, salt);
-}
-`);const $ = document.querySelector.bind(document);const encryptedMsg = "a80e8788725caeba3c4ff1ff708c69aa405536b0634cb253b7fc3b0f306110139ff77c84b7fa0c11b296aba973e04c4ecb0c6945723e7fe3eaa2380aba4ec7ea83d01c910b8ab2801ffa3c95cddfb65d208c320e655cd13ae53011952d5e5ccd7cf17411a22812f72c2e9538d317e78071a00e7033b0668a45f5f928ceaa4df61c4bf3ea69fc49dad921f8df4b3b875dd70e376fbdb4801b6ac2239678d0b8a05e3933a409010a02266b4c1c2697ecc401e1c92732dc2e66ccf41763eb29e88051acf9289c120a15ca12240f66d00cce77250f3f636b812539c91fe8989514f1c2624eee572a2d57e1abc725444531a7735b0a20ae8581fd581624b1ac298947480f8a4f69d15acd5a7e29eb4db1b0a2d999e6f0826f5cfa416bf1fe50163cc2e67703cfee1e80878b6b667364792f0492000e6da26a83cd157d1a133cb4fdac57b9c0f5141c9f0654e84b6727c61cb5f9c10c856ade625c314ffc26e2d3de7af1780b63ed8fff540c8014112b9f35646eeee7064357393f04f6e4af2861c2960d033247d613dfc741f4752994e5cc644439013c59b4fc3c9f866f1d89fea44948f46dc920d253dc11810592ab66f925a4df03665e562d9ecc866f2083bd821a783d9e9cd2ffe48e674b08feb0190491e4e2ac939d45ca648830bb7553e2678bd9b6e45a075f566bd530a633aed3a7a883dc93434bfb783aa907e1987e1378ba8861cead162b4e299092fb41ae480a5a467880fdebb77b239eb5e829b588e40ca4a260bfc25cd3841a7cbd164df17e75f9874598030aeff45c756dd4d72c3c841a15b9a72d3b19e98cddb47eb7ba068a2bb9dfb1f84fac2d4ec49996314af0a7a1574220024f86b9499949ab8450d2f28423534114d02b496e11767f6e141e3a9cffa9664923987615400272bc9bb114be86be3d962237f253e971c061d06d70ca3391f8d854d3becc64c16067c27fc73019158657f2a80b793ba6f61be7fab5fc0e9d57170b556c74aa1c258faa38c931f80659469bb9dda679caad005e30905f1c18c0380db61cfcc07c5fd7d38ae41445de915f462dba62317d3b3237255e4135ea0019141409c4e75ec1f7d6520c64aabf5183cff5d41d24fc3bafe95ff3e459601d8735c35461f1dc3cf5cac231829e8c2fbf001ffaed753c9e76e497dcc41d1f06b226f77624649f1cb0b4960cf5be67447815dda9d2438d144a5301640ddb994e226fede57cea6744f3fc1096d6aeaf2b6e010ab1ac0f0ee5b5735fb35838289397d9f78d31cb37bea8440943a8327edf04973cbacde8abd5570a1180071214a85cdaec4abe1f07c504a88530fb0f86788c6ebb0a17907276d354002d15298a5684cabffa54f7285009b934ebb0f6a871931937eee2bdd6871d48ba88";const salt = "ab6fc59a42e2d0da76f78ef9d8c0a086";const main = $("main");$("form").addEventListener("submit", async function (e) {e.preventDefault();const password = $("input").value;const { isSuccessful } = await handleDecryptionOfPage(password,encryptedMsg,salt);if (!isSuccessful) {main?.classList.remove("shake");main?.offsetWidth;main?.classList.add("shake");}});</script><script src="https://cdn.twind.style" crossorigin></script><style>html{height:100%}body{display:block;height:100%;width:100%;background-color:rgb(17 24 39);color:rgb(241 245 249);font-size:1rem;line-height:1.5rem;overflow-x:hidden}@keyframes shake{0%{transform:translateX(0)}6.5%{transform:translateX(-6px) rotateY(-9deg)}18.5%{transform:translateX(5px) rotateY(7deg)}31.5%{transform:translateX(-3px) rotateY(-5deg)}43.5%{transform:translateX(2px) rotateY(3deg)}50%{transform:translateX(0)}}.shake{animation:shake 2s}</style><main class="flex h-full place-content-center place-items-center"><div class="w-[37rem] rounded bg-slate-800 px-5 py-10 shadow-xl"><h1 class="mb-2 text-3xl font-bold">Passwort</h1><form><label class="grid"><span class="text-slate-300 mb-1.5 mt-4">Bitte gib das Passwort für diese Seite ein.</span> <input type="password" name="password" aria-label="Password" autocomplete="current-password" required autofocus class="appearance-none rounded border border-slate-400 bg-slate-900 px-3 py-2.5 focus-visible:border-teal-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-600"></label> <button type="submit" class="mt-4 w-full rounded bg-slate-100 py-3 font-bold text-slate-800 !bg-slate-100">Login</button></form></div></main></body></html>
+        31.5% {
+          transform: translateX(-3px) rotateY(-5deg);
+        }
+        43.5% {
+          transform: translateX(2px) rotateY(3deg);
+        }
+        50% {
+          transform: translateX(0);
+        }
+      }
+      .shake {
+        animation: shake 2s;
+      }
+    </style>
+    <main class="flex h-full place-content-center place-items-center">
+      <div class="w-[37rem] rounded bg-slate-800 px-5 py-10 shadow-xl">
+        <h1 class="mb-2 text-3xl font-bold">Password</h1>
+        <form>
+          <label class="grid"
+            ><span class="text-slate-300 mb-1.5 mt-4"
+              >Please enter the password <strong>admin</strong></span
+            >
+            <input
+              type="password"
+              name="password"
+              aria-label="Password"
+              autocomplete="current-password"
+              required
+              autofocus
+              class="appearance-none rounded border border-slate-400 bg-slate-900 px-3 py-2.5 focus-visible:border-teal-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-600"
+          /></label>
+          <button
+            type="submit"
+            class="mt-4 w-full rounded bg-slate-100 py-3 font-bold text-slate-800 !bg-slate-100"
+          >
+            Login
+          </button>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>

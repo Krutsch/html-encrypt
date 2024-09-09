@@ -1,9 +1,13 @@
 {
   "name": "html-encrypt",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
   "description": "Password protect a static HTML page without server",
   "bin": "./dist/encrypt.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Krutsch/html-encrypt.git"
+  },
   "bugs": "https://github.com/Krutsch/html-encrypt/issues",
   "scripts": {
     "start": "tsc"
@@ -19,6 +23,7 @@
   "author": "Fabian Klingenberg <klingenberg.fabian@gmx.de> (https://klingenberg.netlify.app/)",
   "license": "MIT",
   "dependencies": {
+    "esbuild": "^0.23.1",
     "html-minifier-terser": "^7.2.0"
   },
   "devDependencies": {

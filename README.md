@@ -1,10 +1,10 @@
 # html-encrypt
 
-A zero config and one dependency tool to enscript html files.
+A zero config (and only optional minifiers as dependencies) to enscript html files.
 This is a heavy modified clone of [staticrypt](https://github.com/robinmoisson/staticrypt).
 
 <p align="center">
-  <img src=".\login.png">
+  <img src="./login.png">
       <br>
   <a class="text-center" href="https://html-encrypt-demo.netlify.app">Live Example</a>
 <p>
@@ -30,7 +30,7 @@ Note: running the command will modify the file.
 - You will be asked to enter the Password
 
   <p align="center">
-    <img src=".\brute-force.png">
+    <img src="./brute-force.png">
     <br>
     <a class="text-center" href="https://www.hivesystems.com/blog/examining-the-lastpass-breach-through-our-password-table">Please consider using a safe password</a>
   <p>
