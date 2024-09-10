@@ -1,6 +1,6 @@
 # html-encrypt
 
-A zero config (and only optional minifiers as dependencies) to enscript html files.
+A zero config (and only optional minifiers as dependencies) to encrypt html files.
 This is a heavy modified clone of [staticrypt](https://github.com/robinmoisson/staticrypt).
 
 <p align="center">
@@ -35,7 +35,7 @@ Note: running the command will modify the file.
     <a class="text-center" href="https://www.hivesystems.com/blog/examining-the-lastpass-breach-through-our-password-table">Please consider using a safe password</a>
   <p>
 
-- Additionally, you can bring in your own template
+- Additionally, you can bring in your own template. Create a .html file and reference it when asked in the CLI.
   ```html
   <form method="post">
       PW: <input type="password" name="" id="">
@@ -44,9 +44,9 @@ Note: running the command will modify the file.
   ```
 
 
-- You can also add --removeHead in order to remove the content of the head for the output file. This might be needed for some SPAs.
+- You can also add --remove-head in order to remove the content of the head for the output file. This might be needed for some SPAs.
   ```bash
-  npx html-encrypt --removeHead <path/index.html>
+  npx html-encrypt --remove-head <path/index.html>
   ```
 
 - You can also add --no-minify in order to not use html-minifier-terser.

@@ -1,6 +1,6 @@
 {
   "name": "html-encrypt",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "description": "Password protect a static HTML page without server",
   "bin": "./dist/encrypt.js",
@@ -10,7 +10,8 @@
   },
   "bugs": "https://github.com/Krutsch/html-encrypt/issues",
   "scripts": {
-    "start": "tsc"
+    "start": "tsc",
+    "test": "npx tsc && node dist/encrypt.js dist/index.html && npx serve dist"
   },
   "keywords": [
     "javascript",

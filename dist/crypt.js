@@ -1,9 +1,15 @@
 const { subtle } = crypto;
+const HASH_ITERATIONS = {
+    1: 1000,
+    2: 14000,
+    3: 585000,
+};
+const hash = "SHA-256";
 const HEX_BITS = 4;
-export const IV_BITS = 16 * 8;
+export const IV_BITS = 128; // 16 * 8
 export const ENCRYPTION_ALGO = "AES-CBC";
 export const HexEncoder = {
-    parse: function (hexString) {
+    parse(hexString) {
         if (hexString.length % 2 !== 0)
             throw "Invalid hexString";
         const arrayBuffer = new Uint8Array(hexString.length / 2);
@@ -16,16 +22,8 @@ export const HexEncoder = {
         }
         return arrayBuffer;
     },
-    stringify: function (bytes) {
-        const hexBytes = [];
-        for (let i = 0; i < bytes.length; ++i) {
-            let byteString = bytes[i].toString(16);
-            if (byteString.length < 2) {
-                byteString = "0" + byteString;
-            }
-            hexBytes.push(byteString);
-        }
-        return hexBytes.join("");
+    stringify(bytes) {
+        return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
     },
 };
 async function decrypt(encryptedMsg, hashedPassword) {
@@ -33,20 +31,8 @@ async function decrypt(encryptedMsg, hashedPassword) {
     const iv = HexEncoder.parse(encryptedMsg.substring(0, ivLength));
     const encrypted = encryptedMsg.substring(ivLength);
     const key = await subtle.importKey("raw", HexEncoder.parse(hashedPassword), ENCRYPTION_ALGO, false, ["decrypt"]);
-    const outBuffer = await subtle.decrypt({
-        name: ENCRYPTION_ALGO,
-        iv: iv,
-    }, key, HexEncoder.parse(encrypted));
-    return new TextDecoder().decode(new Uint8Array(outBuffer));
-}
-function hashLegacyRound(password, salt) {
-    return pbkdf2(password, salt, 1000, "SHA-1");
-}
-function hashSecondRound(hashedPassword, salt) {
-    return pbkdf2(hashedPassword, salt, 14000, "SHA-256");
-}
-function hashThirdRound(hashedPassword, salt) {
-    return pbkdf2(hashedPassword, salt, 585000, "SHA-256");
+    const decryptedBuffer = await subtle.decrypt({ name: ENCRYPTION_ALGO, iv }, key, HexEncoder.parse(encrypted));
+    return new TextDecoder().decode(new Uint8Array(decryptedBuffer));
 }
 async function pbkdf2(password, salt, iterations, hashAlgorithm) {
     const key = await subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
@@ -58,20 +44,23 @@ async function pbkdf2(password, salt, iterations, hashAlgorithm) {
     }, key, 256);
     return HexEncoder.stringify(new Uint8Array(keyBytes));
 }
+async function hashPasswordRound(password, salt, iterations, hashAlgorithm = hash) {
+    return pbkdf2(password, salt, iterations, hashAlgorithm);
+}
 async function decode(signedMsg, hashedPassword, salt, backwardCompatibleAttempt = 0, originalPassword = "") {
     const encryptedHMAC = signedMsg.substring(0, 64);
     const encryptedMsg = signedMsg.substring(64);
     const decryptedHMAC = await signMessage(hashedPassword, encryptedMsg);
     if (decryptedHMAC !== encryptedHMAC) {
-        originalPassword = originalPassword || hashedPassword;
+        originalPassword ||= hashedPassword;
         if (backwardCompatibleAttempt === 0) {
-            const updatedHashedPassword = await hashThirdRound(originalPassword, salt);
-            return decode(signedMsg, updatedHashedPassword, salt, backwardCompatibleAttempt + 1, originalPassword);
+            const updatedHashedPassword = await hashPasswordRound(originalPassword, salt, HASH_ITERATIONS[3]);
+            return decode(signedMsg, updatedHashedPassword, salt, 1, originalPassword);
         }
         if (backwardCompatibleAttempt === 1) {
-            let updatedHashedPassword = await hashSecondRound(originalPassword, salt);
-            updatedHashedPassword = await hashThirdRound(updatedHashedPassword, salt);
-            return decode(signedMsg, updatedHashedPassword, salt, backwardCompatibleAttempt + 1, originalPassword);
+            let updatedHashedPassword = await hashPasswordRound(originalPassword, salt, HASH_ITERATIONS[2]);
+            updatedHashedPassword = await hashPasswordRound(updatedHashedPassword, salt, HASH_ITERATIONS[3]);
+            return decode(signedMsg, updatedHashedPassword, salt, 2, originalPassword);
         }
         return { success: false, message: "Signature mismatch" };
     }
@@ -80,48 +69,39 @@ async function decode(signedMsg, hashedPassword, salt, backwardCompatibleAttempt
         decoded: await decrypt(encryptedMsg, hashedPassword),
     };
 }
-async function handleDecryptionOfPageFromHash(hashedPassword, encryptedMsg, salt) {
-    const isDecryptionSuccessful = await decryptAndReplaceHtml(hashedPassword, encryptedMsg, salt);
-    if (!isDecryptionSuccessful) {
-        return {
-            isSuccessful: false,
-            hashedPassword,
-        };
-    }
-    return {
-        isSuccessful: true,
-        hashedPassword,
-    };
-}
 async function decryptAndReplaceHtml(hashedPassword, encryptedMsg, salt) {
     const result = await decode(encryptedMsg, hashedPassword, salt);
     if (!result.success) {
         return false;
     }
-    // @ts-ignore
-    import("https://unpkg.com/hydro-js@1.5.19/dist/library.js")
-        .then(({ render, html, setReuseElements }) => {
+    try {
+        const { render, html, setReuseElements } = await import(
+        // @ts-ignore
+        "https://cdn.jsdelivr.net/npm/hydro-js");
         setReuseElements(false);
         const element = html({ raw: result.decoded });
-        const newHTML = element.querySelector("html") || element;
-        render(newHTML, document.documentElement);
-    })
-        .catch(() => {
+        render(element.querySelector("html") || element, document.documentElement);
+    }
+    catch {
         document.write(result.decoded);
         document.close();
-    });
+    }
     return true;
 }
+async function handleDecryptionOfPageFromHash(hashedPassword, encryptedMsg, salt) {
+    const isDecryptionSuccessful = await decryptAndReplaceHtml(hashedPassword, encryptedMsg, salt);
+    return {
+        isSuccessful: isDecryptionSuccessful,
+        hashedPassword,
+    };
+}
 export async function hashPassword(password, salt) {
-    let hashedPassword = await hashLegacyRound(password, salt);
-    hashedPassword = await hashSecondRound(hashedPassword, salt);
-    return hashThirdRound(hashedPassword, salt);
+    let hashedPassword = await hashPasswordRound(password, salt, HASH_ITERATIONS[1], "SHA-1");
+    hashedPassword = await hashPasswordRound(hashedPassword, salt, HASH_ITERATIONS[2], "SHA-256");
+    return hashPasswordRound(hashedPassword, salt, HASH_ITERATIONS[3]);
 }
 export async function signMessage(hashedPassword, message) {
-    const key = await subtle.importKey("raw", HexEncoder.parse(hashedPassword), {
-        name: "HMAC",
-        hash: "SHA-256",
-    }, false, ["sign"]);
+    const key = await subtle.importKey("raw", HexEncoder.parse(hashedPassword), { name: "HMAC", hash }, false, ["sign"]);
     const signature = await subtle.sign("HMAC", key, new TextEncoder().encode(message));
     return HexEncoder.stringify(new Uint8Array(signature));
 }
