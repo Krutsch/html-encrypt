@@ -49,7 +49,7 @@ Note: running the command will modify the file.
   npx html-encrypt --remove-head <path/index.html>
   ```
 
-- You can also add --no-minify in order to not use html-minifier-terser.
+- You can also add --no-minify in order to not use html-minifier-terser and esbuild.
   ```bash
   npx html-encrypt --no-minify <path/index.html>
   ```
