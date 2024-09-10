@@ -1,0 +1,7 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Cross-Origin-Resource-Policy: same-origin
+  Content-Security-Policy: default-src 'none'; script-src 'unsafe-inline' https: blob:; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' https:; font-src 'self'; manifest-src 'self'; frame-ancestors 'none'
