@@ -97,7 +97,7 @@ async function handleDecryptionOfPageFromHash(hashedPassword, encryptedMsg, salt
 }
 export async function hashPassword(password, salt) {
     let hashedPassword = await hashPasswordRound(password, salt, HASH_ITERATIONS[1], "SHA-1");
-    hashedPassword = await hashPasswordRound(hashedPassword, salt, HASH_ITERATIONS[2], "SHA-256");
+    hashedPassword = await hashPasswordRound(hashedPassword, salt, HASH_ITERATIONS[2]);
     return hashPasswordRound(hashedPassword, salt, HASH_ITERATIONS[3]);
 }
 export async function signMessage(hashedPassword, message) {
