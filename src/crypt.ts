@@ -207,8 +207,7 @@ export async function hashPassword(
   hashedPassword = await hashPasswordRound(
     hashedPassword,
     salt,
-    HASH_ITERATIONS[2],
-    "SHA-256"
+    HASH_ITERATIONS[2]
   );
   return hashPasswordRound(hashedPassword, salt, HASH_ITERATIONS[3]);
 }
