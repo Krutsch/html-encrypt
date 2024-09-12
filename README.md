@@ -43,6 +43,11 @@ Note: running the command will modify the file.
   </form>
   ```
 
+- You can also set the password with -p <long-password>
+  ```bash
+  npx html-encrypt --remove-head <path/index.html> -p <long-password>
+  ```
+
 
 - You can also add --remove-head in order to remove the content of the head for the output file. This might be needed for some SPAs.
   ```bash
@@ -53,3 +58,9 @@ Note: running the command will modify the file.
   ```bash
   npx html-encrypt --no-minify <path/index.html>
   ```
+
+- You can also skip the optional template path with --own-template. Or combine it with a secure -p in a Pipeline.
+  ```bash
+  npx html-encrypt --own-template <path/index.html>
+  ```
+

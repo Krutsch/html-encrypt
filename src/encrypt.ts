@@ -16,6 +16,8 @@ import {
 
 const removeHead = process.argv.includes("--remove-head");
 const noMinify = process.argv.includes("--no-minify") || false;
+const ownTemplate = process.argv.includes("--own-template") || false;
+const setPasswordOnCLI = process.argv.findIndex((arg) => arg === "-p");
 
 async function encodeWithHashedPassword(
   msg: string,
@@ -68,7 +70,7 @@ function prompt(question: string): Promise<string> {
 }
 
 try {
-  const filePath = process.argv.at(-1);
+  const filePath = process.argv.find((arg) => arg.endsWith(".html"));
 
   if (!filePath?.endsWith(".html")) {
     console.error("Please specify a valid .html file.");
@@ -78,12 +80,16 @@ try {
   console.warn("This operation will overwrite your specified .html file!");
 
   const salt = generateRandomSalt();
-  const password = await prompt("Enter your long, unusual password: ");
-  const bodyPath = await prompt(
-    "Enter your optional path for your login template (or press Enter to use the default): "
-  );
 
-  const body = bodyPath
+  const password =
+    setPasswordOnCLI === -1
+      ? await prompt("Enter your long, unusual password: ")
+      : process.argv.at(setPasswordOnCLI + 1)!;
+  const bodyPath = ownTemplate
+    ? await prompt("Enter your optional path for your login template: ")
+    : "";
+
+  const body = ownTemplate
     ? await readFile(bodyPath, "utf-8")
     : getDefaultBodyTemplate();
 
@@ -124,10 +130,10 @@ try {
         document.querySelector("form").addEventListener("submit", async (e) => {
           e.preventDefault();
           const password = document.querySelector("input").value;
-          const { isSuccessful } = await handleDecryptionOfPage(
+          const isSuccessful = await handleDecryptionOfPage(
             password,
             encryptedMsg,
-            salt,
+            salt
           );
           if (!isSuccessful) {
             main?.classList.remove("shake");

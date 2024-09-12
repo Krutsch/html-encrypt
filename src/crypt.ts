@@ -150,11 +150,12 @@ async function decode(
   };
 }
 
-async function decryptAndReplaceHtml(
-  hashedPassword: string,
+export async function handleDecryptionOfPage(
+  password: string,
   encryptedMsg: string,
   salt: string
 ): Promise<boolean> {
+  const hashedPassword = await hashPassword(password, salt);
   const result = await decode(encryptedMsg, hashedPassword, salt);
   if (!result.success) {
     return false;
@@ -175,23 +176,6 @@ async function decryptAndReplaceHtml(
   }
 
   return true;
-}
-
-async function handleDecryptionOfPageFromHash(
-  hashedPassword: string,
-  encryptedMsg: string,
-  salt: string
-): Promise<{ isSuccessful: boolean; hashedPassword: string }> {
-  const isDecryptionSuccessful = await decryptAndReplaceHtml(
-    hashedPassword,
-    encryptedMsg,
-    salt
-  );
-
-  return {
-    isSuccessful: isDecryptionSuccessful,
-    hashedPassword,
-  };
 }
 
 export async function hashPassword(
@@ -231,13 +215,4 @@ export async function signMessage(
   );
 
   return HexEncoder.stringify(new Uint8Array(signature));
-}
-
-export async function handleDecryptionOfPage(
-  password: string,
-  encryptedMsg: string,
-  salt: string
-): Promise<ReturnType<typeof handleDecryptionOfPageFromHash>> {
-  const hashedPassword = await hashPassword(password, salt);
-  return handleDecryptionOfPageFromHash(hashedPassword, encryptedMsg, salt);
 }

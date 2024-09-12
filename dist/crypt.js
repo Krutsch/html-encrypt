@@ -69,7 +69,8 @@ async function decode(signedMsg, hashedPassword, salt, backwardCompatibleAttempt
         decoded: await decrypt(encryptedMsg, hashedPassword),
     };
 }
-async function decryptAndReplaceHtml(hashedPassword, encryptedMsg, salt) {
+export async function handleDecryptionOfPage(password, encryptedMsg, salt) {
+    const hashedPassword = await hashPassword(password, salt);
     const result = await decode(encryptedMsg, hashedPassword, salt);
     if (!result.success) {
         return false;
@@ -88,13 +89,6 @@ async function decryptAndReplaceHtml(hashedPassword, encryptedMsg, salt) {
     }
     return true;
 }
-async function handleDecryptionOfPageFromHash(hashedPassword, encryptedMsg, salt) {
-    const isDecryptionSuccessful = await decryptAndReplaceHtml(hashedPassword, encryptedMsg, salt);
-    return {
-        isSuccessful: isDecryptionSuccessful,
-        hashedPassword,
-    };
-}
 export async function hashPassword(password, salt) {
     let hashedPassword = await hashPasswordRound(password, salt, HASH_ITERATIONS[1], "SHA-1");
     hashedPassword = await hashPasswordRound(hashedPassword, salt, HASH_ITERATIONS[2]);
@@ -104,8 +98,4 @@ export async function signMessage(hashedPassword, message) {
     const key = await subtle.importKey("raw", HexEncoder.parse(hashedPassword), { name: "HMAC", hash }, false, ["sign"]);
     const signature = await subtle.sign("HMAC", key, new TextEncoder().encode(message));
     return HexEncoder.stringify(new Uint8Array(signature));
-}
-export async function handleDecryptionOfPage(password, encryptedMsg, salt) {
-    const hashedPassword = await hashPassword(password, salt);
-    return handleDecryptionOfPageFromHash(hashedPassword, encryptedMsg, salt);
 }
