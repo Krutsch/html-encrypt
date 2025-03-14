@@ -107,7 +107,7 @@ try {
   if (removeHead) {
     htmlContent = htmlContent.replace(
       /<head([^]*?)>[^]*?<\/head>/,
-      "<head></head>"
+      '<head><meta name="viewport" content="width=device-width,initial-scale=1"></head>'
     );
   }
 
@@ -174,6 +174,7 @@ function getDefaultBodyTemplate(): string {
 <style>
   html {
     height: 100%;
+    overflow: hidden;
   }
   body {
     display: block;
@@ -209,6 +210,13 @@ function getDefaultBodyTemplate(): string {
     animation: shake 2s;
   }
 </style>
+<script type="module">
+  document.querySelector("input").addEventListener("change", () => {
+    if (document.body.querySelector("input:autofill")) {
+      document.body.querySelector("button").click();
+    }
+  });
+</script>
 <main class="flex h-full w-full place-content-center place-items-center">
   <div class="w-full max-w-[37rem] rounded bg-slate-800 px-5 py-10 shadow-xl">
     <h1 class="mb-2 text-3xl font-bold">Passwort</h1>
@@ -235,6 +243,5 @@ function getDefaultBodyTemplate(): string {
       </button>
     </form>
   </div>
-</main>
-`;
+</main>`;
 }
