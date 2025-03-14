@@ -121,8 +121,8 @@ function getDefaultBodyTemplate() {
     display: block;
     height: 100%;
     width: 100%;
-    background-color: rgb(17 24 39);
-    color: rgb(241 245 249);
+    background-color: oklch(.278 .033 256.848) !important;
+    color: oklch(.985 .002 247.839);
     font-size: 1rem;
     line-height: 1.5rem;
     overflow-x: hidden;
@@ -151,8 +151,8 @@ function getDefaultBodyTemplate() {
     animation: shake 2s;
   }
 </style>
-<main class="flex h-full place-content-center place-items-center">
-  <div class="w-[37rem] rounded bg-slate-800 px-5 py-10 shadow-xl">
+<main class="flex h-full w-full place-content-center place-items-center">
+  <div class="w-full max-w-[37rem] rounded bg-slate-800 px-5 py-10 shadow-xl">
     <h1 class="mb-2 text-3xl font-bold">Passwort</h1>
     <form>
       <label class="grid"
