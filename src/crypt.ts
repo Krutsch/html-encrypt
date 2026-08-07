@@ -11,7 +11,7 @@ export const IV_BITS = 128; // 16 * 8
 export const ENCRYPTION_ALGO = "AES-CBC";
 
 export const HexEncoder = {
-  parse(hexString: string): Uint8Array {
+  parse(hexString: string): Uint8Array<ArrayBuffer> {
     if (hexString.length % 2 !== 0) throw "Invalid hexString";
     const arrayBuffer = new Uint8Array(hexString.length / 2);
 
@@ -28,7 +28,7 @@ export const HexEncoder = {
 
   stringify(bytes: Uint8Array): string {
     return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
-      ""
+      "",
     );
   },
 };
@@ -43,13 +43,13 @@ async function decrypt(encryptedMsg: string, hashedPassword: string) {
     HexEncoder.parse(hashedPassword),
     ENCRYPTION_ALGO,
     false,
-    ["decrypt"]
+    ["decrypt"],
   );
 
   const decryptedBuffer = await subtle.decrypt(
     { name: ENCRYPTION_ALGO, iv },
     key,
-    HexEncoder.parse(encrypted)
+    HexEncoder.parse(encrypted),
   );
 
   return new TextDecoder().decode(new Uint8Array(decryptedBuffer));
@@ -59,14 +59,14 @@ async function pbkdf2(
   password: string,
   salt: string,
   iterations: number,
-  hashAlgorithm: string
+  hashAlgorithm: string,
 ): Promise<string> {
   const key = await subtle.importKey(
     "raw",
     new TextEncoder().encode(password),
     "PBKDF2",
     false,
-    ["deriveBits"]
+    ["deriveBits"],
   );
 
   const keyBytes = await subtle.deriveBits(
@@ -77,7 +77,7 @@ async function pbkdf2(
       salt: new TextEncoder().encode(salt),
     },
     key,
-    256
+    256,
   );
 
   return HexEncoder.stringify(new Uint8Array(keyBytes));
@@ -87,7 +87,7 @@ async function hashPasswordRound(
   password: string,
   salt: string,
   iterations: number,
-  hashAlgorithm: string = hash
+  hashAlgorithm: string = hash,
 ): Promise<string> {
   return pbkdf2(password, salt, iterations, hashAlgorithm);
 }
@@ -97,7 +97,7 @@ async function decode(
   hashedPassword: string,
   salt: string,
   backwardCompatibleAttempt = 0,
-  originalPassword = ""
+  originalPassword = "",
 ): Promise<{ success: boolean; decoded?: string; message?: string }> {
   const encryptedHMAC = signedMsg.substring(0, 64);
   const encryptedMsg = signedMsg.substring(64);
@@ -110,14 +110,14 @@ async function decode(
       const updatedHashedPassword = await hashPasswordRound(
         originalPassword,
         salt,
-        HASH_ITERATIONS[3]
+        HASH_ITERATIONS[3],
       );
       return decode(
         signedMsg,
         updatedHashedPassword,
         salt,
         1,
-        originalPassword
+        originalPassword,
       );
     }
 
@@ -125,19 +125,19 @@ async function decode(
       let updatedHashedPassword = await hashPasswordRound(
         originalPassword,
         salt,
-        HASH_ITERATIONS[2]
+        HASH_ITERATIONS[2],
       );
       updatedHashedPassword = await hashPasswordRound(
         updatedHashedPassword,
         salt,
-        HASH_ITERATIONS[3]
+        HASH_ITERATIONS[3],
       );
       return decode(
         signedMsg,
         updatedHashedPassword,
         salt,
         2,
-        originalPassword
+        originalPassword,
       );
     }
 
@@ -153,7 +153,7 @@ async function decode(
 export async function handleDecryptionOfPage(
   password: string,
   encryptedMsg: string,
-  salt: string
+  salt: string,
 ): Promise<boolean> {
   const hashedPassword = await hashPassword(password, salt);
   const result = await decode(encryptedMsg, hashedPassword, salt);
@@ -180,38 +180,38 @@ export async function handleDecryptionOfPage(
 
 export async function hashPassword(
   password: string,
-  salt: string
+  salt: string,
 ): Promise<string> {
   let hashedPassword = await hashPasswordRound(
     password,
     salt,
     HASH_ITERATIONS[1],
-    "SHA-1"
+    "SHA-1",
   );
   hashedPassword = await hashPasswordRound(
     hashedPassword,
     salt,
-    HASH_ITERATIONS[2]
+    HASH_ITERATIONS[2],
   );
   return hashPasswordRound(hashedPassword, salt, HASH_ITERATIONS[3]);
 }
 
 export async function signMessage(
   hashedPassword: string,
-  message: string
+  message: string,
 ): Promise<string> {
   const key = await subtle.importKey(
     "raw",
     HexEncoder.parse(hashedPassword),
     { name: "HMAC", hash },
     false,
-    ["sign"]
+    ["sign"],
   );
 
   const signature = await subtle.sign(
     "HMAC",
     key,
-    new TextEncoder().encode(message)
+    new TextEncoder().encode(message),
   );
 
   return HexEncoder.stringify(new Uint8Array(signature));
