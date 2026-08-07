@@ -9,7 +9,6 @@ This is a heavy modified clone of [staticrypt](https://github.com/robinmoisson/s
   <a class="text-center" href="https://html-encrypt-demo.netlify.app">Live Example</a>
 <p>
 
-
 ## Installation
 
 ```bash
@@ -23,7 +22,7 @@ npx html-encrypt <path/index.html>
 ```
 
 Note: running the command will modify the file.
-
+Both `.html` and `.htm` files are supported.
 
 ## Options
 
@@ -36,25 +35,28 @@ Note: running the command will modify the file.
   <p>
 
 - Additionally, you can bring in your own template. Create a .html file and reference it when asked in the CLI.
+
   ```html
   <form method="post">
-      PW: <input type="password" name="" id="">
-      <button type="submit">Login</button>
+    PW: <input type="password" name="" id="" />
+    <button type="submit">Login</button>
   </form>
   ```
 
 - You can also set the password with -p <long-password>
+
   ```bash
   npx html-encrypt --remove-head <path/index.html> -p <long-password>
   ```
 
-
 - You can also add --remove-head in order to remove the content of the head for the output file. This might be needed for some SPAs.
+
   ```bash
   npx html-encrypt --remove-head <path/index.html>
   ```
 
 - You can also add --no-minify in order to not use html-minifier-terser and esbuild.
+
   ```bash
   npx html-encrypt --no-minify <path/index.html>
   ```
@@ -63,4 +65,3 @@ Note: running the command will modify the file.
   ```bash
   npx html-encrypt --own-template <path/index.html>
   ```
-
